@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>91 Club Prediction</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(145deg, #0f0f0f, #1a1a1a);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            background: rgba(30, 30, 30, 0.85);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            padding: 30px 25px;
+            text-align: center;
+            color: #f9d342;
+            width: 320px;
+            position: relative;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-shadow: 1px 1px 5px #000;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 44px;
+            height: 44px;
+            font-size: 22px;
+            text-align: center;
+            border-radius: 12px;
+            border: 2px solid #f9d342;
+            background: #222;
+            color: #fff;
+            outline: none;
+            box-shadow: 0 0 6px #f9d34280;
+        }
+
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 0 auto 20px;
+            width: 200px;
+        }
+
+        .number-pad button,
+        .check-btn {
+            font-size: 18px;
+            padding: 10px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s ease;
+            background: linear-gradient(145deg, #333, #222);
+            color: #f9d342;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+
+        .number-pad button:hover,
+        .check-btn:hover {
+            background: #f9d342;
+            color: #111;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+
+        .clear-btn {
+            grid-column: span 3;
+            background: #c0392b;
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: #e74c3c;
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
+        }
+
+        .check-btn {
+            width: 100%;
+            background: #27ae60;
+            color: #fff;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .check-btn:hover {
+            background: #2ecc71;
+        }
+
+        #result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #f1c40f;
+            text-shadow: 1px 1px #000;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 10px;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>91 Club Prediction</h2>
+
+        <div class="input-container">
+            <input type="tel" maxlength="1" oninput="moveNext(0)" onkeydown="moveBack(event, 0)" id="digit0">
+            <input type="tel" maxlength="1" oninput="moveNext(1)" onkeydown="moveBack(event, 1)" id="digit1">
+            <input type="tel" maxlength="1" oninput="moveNext(2)" onkeydown="moveBack(event, 2)" id="digit2">
+            <input type="tel" maxlength="1" oninput="moveNext(3)" onkeydown="moveBack(event, 3)" id="digit3">
+            <input type="tel" maxlength="1" oninput="moveNext(4)" onkeydown="moveBack(event, 4)" id="digit4">
+            <input type="tel" maxlength="1" oninput="moveNext(5)" onkeydown="moveBack(event, 5)" id="digit5">
+        </div>
+
+        <div class="number-pad">
+            <button onclick="enterDigit(1)">1</button>
+            <button onclick="enterDigit(2)">2</button>
+            <button onclick="enterDigit(3)">3</button>
+            <button onclick="enterDigit(4)">4</button>
+            <button onclick="enterDigit(5)">5</button>
+            <button onclick="enterDigit(6)">6</button>
+            <button onclick="enterDigit(7)">7</button>
+            <button onclick="enterDigit(8)">8</button>
+            <button onclick="enterDigit(9)">9</button>
+            <button class="clear-btn" onclick="clearInputs()">Clear</button>
+            <button onclick="enterDigit(0)">0</button>
+            <button onclick="deleteDigit()">⌫</button>
+        </div>
+
+        <button class="check-btn" onclick="predict()">✔ Check Prediction</button>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        let patterns = {};
+
+        fetch('patterns.json')
+            .then(res => res.json())
+            .then(data => patterns = data)
+            .catch(err => {
+                console.error("Error loading patterns:", err);
+                document.getElementById("result").innerText = "Error loading patterns!";
+            });
+
+        let currentIndex = 0;
+
+        function moveNext(index) {
+            let inputs = document.querySelectorAll(".input-container input");
+            if (inputs[index].value.length === 1 && index < 5) {
+                inputs[index + 1].focus();
+                currentIndex = index + 1;
+            }
+        }
+
+        function moveBack(event, index) {
+            if (event.key === "Backspace" && event.target.value === "") {
+                if (index > 0) {
+                    document.getElementById(`digit${index}`).value = "";
+                    document.getElementById(`digit${index - 1}`).focus();
+                    currentIndex = index - 1;
+                }
+            }
+        }
+
+        function enterDigit(num) {
+            let inputs = document.querySelectorAll(".input-container input");
+            if (currentIndex < 6) {
+                inputs[currentIndex].value = num;
+                if (currentIndex < 5) {
+                    currentIndex++;
+                    inputs[currentIndex].focus();
+                }
+            }
+        }
+
+        function deleteDigit() {
+            let inputs = document.querySelectorAll(".input-container input");
+            if (currentIndex > 0) {
+                inputs[currentIndex].value = "";
+                currentIndex--;
+                inputs[currentIndex].focus();
+            } else {
+                inputs[currentIndex].value = "";
+            }
+        }
+
+        function clearInputs() {
+            let inputs = document.querySelectorAll(".input-container input");
+            inputs.forEach(input => input.value = "");
+            currentIndex = 0;
+            inputs[0].focus();
+        }
+
+        function predict() {
+            let inputs = document.querySelectorAll(".input-container input");
+            let pattern = Array.from(inputs).map(input => input.value).join("");
+
+            document.getElementById("result").innerText = patterns[pattern]
+                ? `Result: ${patterns[pattern] === "B" ? "Big" : "Small"}`
+                : "Pattern not found!";
+        }
+
+        function createSnowflakes() {
+            for (let i = 0; i < 40; i++) {
+                let snowflake = document.createElement("div");
+                snowflake.innerHTML = "❄";
+                snowflake.classList.add("snowflake");
+                snowflake.style.left = `${Math.random() * 100}vw`;
+                snowflake.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                snowflake.style.fontSize = `${Math.random() * 12 + 8}px`;
+                document.body.appendChild(snowflake);
+            }
+        }
+
+        createSnowflakes();
+    </script>
+</body>
+</html>
