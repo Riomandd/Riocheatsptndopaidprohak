@@ -16,7 +16,6 @@
             height: 100vh;
             overflow: hidden;
         }
-
         .container {
             background: rgba(30, 30, 30, 0.85);
             backdrop-filter: blur(12px);
@@ -29,21 +28,18 @@
             width: 320px;
             position: relative;
         }
-
         h2 {
             font-size: 24px;
             margin-bottom: 20px;
             color: #ffd700;
             text-shadow: 1px 1px 5px #000;
         }
-
         .input-container {
             display: flex;
             justify-content: center;
             gap: 8px;
             margin-bottom: 20px;
         }
-
         input {
             width: 44px;
             height: 44px;
@@ -56,7 +52,6 @@
             outline: none;
             box-shadow: 0 0 6px #f9d34280;
         }
-
         .number-pad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -64,7 +59,6 @@
             margin: 0 auto 20px;
             width: 200px;
         }
-
         .number-pad button,
         .check-btn {
             font-size: 18px;
@@ -77,25 +71,21 @@
             color: #f9d342;
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
         }
-
         .number-pad button:hover,
         .check-btn:hover {
             background: #f9d342;
             color: #111;
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
         }
-
         .clear-btn {
             grid-column: span 3;
             background: #c0392b;
             color: white;
         }
-
         .clear-btn:hover {
             background: #e74c3c;
             box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
         }
-
         .check-btn {
             width: 100%;
             background: #27ae60;
@@ -103,11 +93,9 @@
             font-weight: bold;
             margin-top: 10px;
         }
-
         .check-btn:hover {
             background: #2ecc71;
         }
-
         #result {
             margin-top: 15px;
             font-size: 18px;
@@ -115,7 +103,6 @@
             color: #f1c40f;
             text-shadow: 1px 1px #000;
         }
-
         .snowflake {
             position: absolute;
             top: -10px;
@@ -125,7 +112,6 @@
             pointer-events: none;
             animation: fall linear infinite;
         }
-
         @keyframes fall {
             to {
                 transform: translateY(100vh);
@@ -166,15 +152,13 @@
     </div>
 
     <script>
-        let patterns = {};
-
-        fetch('patterns.json')
-            .then(res => res.json())
-            .then(data => patterns = data)
-            .catch(err => {
-                console.error("Error loading patterns:", err);
-                document.getElementById("result").innerText = "Error loading patterns!";
-            });
+        // Example patterns (you can expand this)
+        let patterns = {
+            "123456": "B",
+            "654321": "S",
+            "111111": "B",
+            "222222": "S"
+        };
 
         let currentIndex = 0;
 
@@ -189,7 +173,6 @@
         function moveBack(event, index) {
             if (event.key === "Backspace" && event.target.value === "") {
                 if (index > 0) {
-                    document.getElementById(`digit${index}`).value = "";
                     document.getElementById(`digit${index - 1}`).focus();
                     currentIndex = index - 1;
                 }
@@ -209,12 +192,12 @@
 
         function deleteDigit() {
             let inputs = document.querySelectorAll(".input-container input");
-            if (currentIndex > 0) {
+            if (inputs[currentIndex].value !== "") {
                 inputs[currentIndex].value = "";
+            } else if (currentIndex > 0) {
                 currentIndex--;
-                inputs[currentIndex].focus();
-            } else {
                 inputs[currentIndex].value = "";
+                inputs[currentIndex].focus();
             }
         }
 
@@ -229,9 +212,13 @@
             let inputs = document.querySelectorAll(".input-container input");
             let pattern = Array.from(inputs).map(input => input.value).join("");
 
-            document.getElementById("result").innerText = patterns[pattern]
-                ? `Result: ${patterns[pattern] === "B" ? "Big" : "Small"}`
-                : "Pattern not found!";
+            if (patterns[pattern]) {
+                let original = patterns[pattern];
+                let opposite = original === "B" ? "Small" : "Big";
+                document.getElementById("result").innerText = `Result: ${opposite}`;
+            } else {
+                document.getElementById("result").innerText = "Pattern not found!";
+            }
         }
 
         function createSnowflakes() {
