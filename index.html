@@ -152,13 +152,16 @@
     </div>
 
     <script>
-        // Example patterns (you can expand this)
-        let patterns = {
-            "123456": "B",
-            "654321": "S",
-            "111111": "B",
-            "222222": "S"
-        };
+        let patterns = {};
+
+        // Load patterns.json
+        fetch('patterns.json')
+            .then(res => res.json())
+            .then(data => patterns = data)
+            .catch(err => {
+                console.error("Error loading patterns:", err);
+                document.getElementById("result").innerText = "Error loading patterns!";
+            });
 
         let currentIndex = 0;
 
@@ -213,7 +216,7 @@
             let pattern = Array.from(inputs).map(input => input.value).join("");
 
             if (patterns[pattern]) {
-                let original = patterns[pattern];
+                let original = patterns[pattern]; // "B" or "S"
                 let opposite = original === "B" ? "Small" : "Big";
                 document.getElementById("result").innerText = `Result: ${opposite}`;
             } else {
